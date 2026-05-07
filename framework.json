@@ -1,0 +1,21 @@
+{
+  "name": "dlg",
+  "version": "0.3.0",
+  "type": "custom",
+  "description": "dlg — a small, header-only-friendly C/C++ logging and assertion library used as an optional debug-logging backend by FreeType (FT_DEBUG_LOGGING).",
+  "publish": {
+    "headers": {
+      "include_dirs": ["include"],
+      "patterns": ["dlg/dlg.h", "dlg/dlg.hpp", "dlg/output.h"]
+    },
+    "binaries": {
+      "glob": ["libdlg.*", "dlg.*"],
+      "include_static": true,
+      "include_pdb": false
+    },
+    "extras": [
+      { "from": "${source}/LICENSE", "to": "." }
+    ],
+    "cmake_config": "auto"
+  }
+}
