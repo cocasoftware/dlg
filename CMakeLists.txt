@@ -11,6 +11,27 @@ project(dlg
     LANGUAGES C
 )
 
+# -- Platform gate ----------------------------------------------------------
+# dlg relies on POSIX (pthread, unistd, gettimeofday) or Win32 (windows.h,
+# CriticalSection) for threading, file locking, and colour output.  On bare
+# WASI / Emscripten there is no OS-level thread model, so dlg.c fails with
+# "Cannot determine platform".  We degrade gracefully to a header-only
+# INTERFACE target (headers still available for type-checking) with no
+# compiled object; FreeType never enables FT_DEBUG_LOGGING in COCA's
+# default profile anyway, so the .a is unreachable.
+if(CMAKE_SYSTEM_NAME STREQUAL "WASI"
+    OR CMAKE_SYSTEM_NAME STREQUAL "Emscripten"
+    OR CMAKE_SYSTEM_PROCESSOR MATCHES "wasm")
+    add_library(dlg INTERFACE)
+    add_library(dlg::dlg ALIAS dlg)
+    target_compile_definitions(dlg INTERFACE DLG_STATIC)
+    target_include_directories(dlg INTERFACE
+        $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/include>
+        $<INSTALL_INTERFACE:include>
+    )
+    return()
+endif()
+
 # Single source, single public include root.
 add_library(dlg STATIC src/dlg/dlg.c)
 add_library(dlg::dlg ALIAS dlg)
